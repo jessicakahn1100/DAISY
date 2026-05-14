@@ -1,0 +1,316 @@
+{
+    "04": {
+        "dai_id": "eaa1160d20dbd675bf56ace0653f5154909c580bcf105d751092aaa6ba0bc828@group.calendar.google.com",
+        "ir_id": "4fd4bcfe209e028ed488489c7f9ce3d4eb57fe7d1bdca1c27601a3a5cae9fbc9@group.calendar.google.com",
+        "search_terms": [
+            "skating",
+            "crafts",
+            "art",
+            "festivals",
+            "fairs",
+            "queer community",
+            "Pride",
+            "jewish community",
+            "comedy",
+            "musicals",
+            "parties",
+            "invasive plant cleanup",
+            "litter",
+            "board games",
+            "stargazing",
+            "astronomy",
+            "star trek",
+            "Vintage market",
+            "Regency Ball"
+        ],
+        "tz": "America/Chicago",
+        "location": [
+            "us",
+            "il",
+            "chicago"
+        ],
+        "avoid_terms": [
+            "for kids",
+            "singles",
+            "about Christianity",
+            "church",
+            "like job fairs",
+            "afro",
+            "male strippers",
+            "gambling",
+            "cash game",
+            "soccer"
+        ],
+        "block": [
+            "Job Fair",
+            "Grief Support Group",
+            "Art Class by Classpop!",
+            "Intermittent Fasting"
+        ],
+        "new": "no",
+        "timestamp": "2026-05-13T10:10:08.654719"
+    },
+    "03": {
+        "dai_id": "6d118d6be36acc0df176dd33a478280a94fbae8138efcc0e364e6066e3166e37@group.calendar.google.com",
+        "ir_id": "cfaf035279395672baa5426086d67dbbc687ec9ee34322b0fd431784dcef5959@group.calendar.google.com",
+        "search_terms": [
+            "cats",
+            "EDM",
+            "hiking"
+        ],
+        "tz": "America/Los_Angeles",
+        "location": [
+            "us",
+            "ca",
+            "san-francisco"
+        ],
+        "avoid_terms": [
+            "for kids",
+            "singles",
+            "about Christianity",
+            "church",
+            "like job fairs",
+            "afro"
+        ],
+        "new": "no",
+        "timestamp": "2026-05-13T10:26:34.089778"
+    },
+    "01": {
+        "dai_id": "de0c9be8b3e8bf6919e3022f701fe9177a145d27c5ef95f3202f239fc5cf30df@group.calendar.google.com",
+        "ir_id": "d02f16e42127a80f4c5d8152fde2f1df17d366bed60f782818f699463eda1aef@group.calendar.google.com",
+        "search_terms": [
+            "biking",
+            "cycling",
+            "3D printing",
+            "art",
+            "crafts",
+            "writing",
+            "screenplay",
+            "astronomy",
+            "stargazing",
+            "stars",
+            "book club",
+            "video games",
+            "makerspace",
+            "community service",
+            "make friends",
+            "meet people",
+            "Basketball",
+            "hackathon",
+            "book club"
+        ],
+        "tz": "America/Chicago",
+        "location": [
+            "us",
+            "il",
+            "chicago"
+        ],
+        "avoid_terms": [
+            "for kids",
+            "for couples",
+            "about Christianity",
+            "like job fairs",
+            "afro",
+            "queer community",
+            "gay",
+            "pride",
+            "gambling",
+            "cash game",
+            "queer"
+        ],
+        "block": [
+            "alcoholics anonymous",
+            "SMART Recovery",
+            "Intermittent Fasting"
+        ],
+        "new": "no",
+        "timestamp": "2026-05-13T10:41:08.933721"
+    },
+    "02": {
+        "dai_id": "f85d5d64dcaf54fdfc76e1d2fc9edc720aa2d821cad31b315fd75417f9e4d2bc@group.calendar.google.com",
+        "ir_id": "9171dac5fca5f8d1688d1347f773c05dadafd4c80dc176b7c3d3ef5820e4f7d1@group.calendar.google.com",
+        "search_terms": [
+            "invasive plant cleanup",
+            "litter cleanup",
+            "hiking"
+        ],
+        "tz": "America/New_York",
+        "location": [
+            "us",
+            "md",
+            "baltimore"
+        ],
+        "avoid_terms": [
+            "for kids",
+            "for couples",
+            "about Christianity",
+            "church",
+            "like job fairs",
+            "afro"
+        ],
+        "new": "no",
+        "timestamp": "2026-05-13T10:34:09.136052"
+    },
+    "14": {
+        "dai_id": "265d9d7a1bb49ccbc9cd43e75102af9678a6665f011e313eb11035643604217f@group.calendar.google.com",
+        "ir_id": "b0ee82af23f501c244730792172cd234a8f1e9e101c56967d4f7388bd1d0f728@group.calendar.google.com",
+        "search_terms": [
+            "Queer",
+            "punk",
+            "art",
+            "goth",
+            "lgbt",
+            "lesbian",
+            "sapphic",
+            "industrial music",
+            "dancing"
+        ],
+        "tz": "America/Chicago",
+        "location": [
+            "us",
+            "il",
+            "Chicago"
+        ],
+        "avoid_terms": [
+            "All ages"
+        ],
+        "new": "no",
+        "timestamp": "2026-05-13T10:55:45.609257"
+    },
+    "21": {
+        "search_terms": [
+            "Concert",
+            "festival",
+            "art",
+            "classes",
+            "books",
+            "museum"
+        ],
+        "tz": "America/Chicago",
+        "location": [
+            "us",
+            "il",
+            "Chicago-"
+        ],
+        "avoid_terms": [
+            "For kids",
+            "fees over $75"
+        ],
+        "new": "no",
+        "timestamp": "2026-05-13T11:05:35.309734"
+    },
+    "28": {
+        "search_terms": [
+            "comedy",
+            "books",
+            "show",
+            "thrifting"
+        ],
+        "tz": "America/Chicago",
+        "location": [
+            "us",
+            "il",
+            "Chicago"
+        ],
+        "avoid_terms": [],
+        "new": "no",
+        "timestamp": "2026-05-13T11:14:00.108719"
+    },
+    "29": {
+        "search_terms": [
+            "bourbon"
+        ],
+        "tz": "America/New_York",
+        "location": [
+            "us",
+            "ky",
+            "union"
+        ],
+        "avoid_terms": [],
+        "new": "no",
+        "timestamp": "2026-05-13T09:35:14.692750"
+    },
+    "30": {
+        "search_terms": [
+            "biking"
+        ],
+        "tz": "America/New_York",
+        "location": [
+            "us",
+            "ky",
+            "Union"
+        ],
+        "avoid_terms": [
+            "for kids",
+            "for couples",
+            "involving fees over $50",
+            "etc"
+        ],
+        "new": "no",
+        "timestamp": "2026-05-13T11:21:23.753180"
+    },
+    "31": {
+        "search_terms": [
+            "beer",
+            " brewing",
+            " food",
+            " festival",
+            " theater",
+            " music",
+            " live music"
+        ],
+        "tz": "America/New_York",
+        "location": [
+            "us",
+            "oh",
+            "Cuyahoga-Falls"
+        ],
+        "avoid_terms": [
+            "for kids",
+            " for couples"
+        ],
+        "new": "no",
+        "timestamp": "2026-05-13T09:41:02.549708"
+    },
+    "32": {
+        "search_terms": [
+            "beer",
+            " running",
+            " trading cards",
+            " tabletop",
+            " theatre",
+            " theater",
+            " brewing",
+            " karaoke",
+            " murder mystery",
+            " open mic",
+            " festival",
+            " food",
+            " music",
+            " live music"
+        ],
+        "tz": "America/New_York",
+        "location": [
+            "us",
+            "oh",
+            "Cuyahoga-Falls"
+        ],
+        "avoid_terms": [],
+        "new": "no",
+        "timestamp": "2026-05-13T09:55:47.664501"
+    },
+    "33": {
+        "search_terms": [
+            ""
+        ],
+        "tz": "America/Chicago",
+        "location": [
+            "us",
+            "il",
+            "Chicago"
+        ],
+        "avoid_terms": [],
+        "new": "no",
+        "timestamp": "2026-05-13T09:50:15.078824"
+    }
+}
