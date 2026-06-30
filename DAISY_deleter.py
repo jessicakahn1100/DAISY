@@ -44,6 +44,16 @@ def exceeds_max_duration(event, max_days=MAX_EVENT_DURATION_DAYS):
         print(f"failed to evaluate event duration for {event.get('summary', 'unknown')}: {parse_error}")
         return False
 
+def build_event_signature(event):
+    signature = {
+        'summary': event.get('summary'),
+        'start': event.get('start'),
+        'end': event.get('end'),
+    }
+    if 'description' in event:
+        signature['description'] = event['description']
+    return signature
+
 #for n in ['04']:
 for n in full_inputs_dict.keys():
 
@@ -96,36 +106,24 @@ for n in full_inputs_dict.keys():
                         for event in existing_events:
 
                             try:
-                                enid = {
-                                    'summary':event['summary'],
-                                    'description':event['description'],
-                                    'start':event['start'],
-                                    'end':event['end']
-                                    }
+                                enid = build_event_signature(event)
                                 existing_events_nid.append(enid)
-                            except:
+                            except Exception as signature_error:
+                               print(f"failed to build event signature: {signature_error}")
                                print(event)
 
                         for event in sorted(existing_events,key=lambda d: d['summary']):
                             eventid = event['id']
-                            try:
-                                enid = {
-                                    'summary':event['summary'],
-                                    'description':event['description'],
-                                    'start':event['start'],
-                                    'end':event['end']
-                                    }
-                            except:
-                                enid = {
-                                'summary':event['summary'],
-                                #'description':event['description'],
-                                'start':event['start'],
-                                'end':event['end']
-                                }
+                            enid = build_event_signature(event)
 
 
                             if exceeds_max_duration(event):
                                 service.events().delete(calendarId=id, eventId=eventid).execute()
+                                print('deleted long event '+event['summary'])
+                                if enid in existing_events_nid:
+                                    existing_events_nid.remove(enid)
+                                anydeleted = True
+                                continue
 
                             #print("enid summary "+enid['summary'])
                             #{key : val for key, val in event.items() if (key != bad for bad in ['id','etag','htmlLink','created','updated','iCalUID'])}
@@ -134,8 +132,9 @@ for n in full_inputs_dict.keys():
                                 try:
                                     service.events().delete(calendarId=id, eventId=eventid).execute()
                                     print('dai deleted '+event['summary'])
-                                except:
+                                except Exception as delete_error:
                                     print("fail delete "+event['summary'])
+                                    print(delete_error)
 
                                 existing_events_nid.remove(enid) # supposed to only remove first occurence
                                 anydeleted = True
