@@ -85,7 +85,6 @@ if len(w) > 0:
 
         # Get events, add them to calendar
         events = get_city_events_for_user(city_events, location)
-        print(events)
         for event in events:
             try:
                 exists_on_main = check_if_exists(service, event, dai_id,tz)

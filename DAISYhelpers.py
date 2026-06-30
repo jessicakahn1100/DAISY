@@ -756,9 +756,10 @@ def build_city_event_pool(full_inputs_dict, user_ids):
         for search_term in city_config['terms'].values():
             events = get_events(search_term, list(city_config['location']), city_config['tz'])
             for event in events:
+                event_start = event.get('start', {}).get('dateTime') or event.get('start', {}).get('date') or ''
                 event_key = (
                     event.get('summary'),
-                    event.get('start', {}).get('dateTime') or '',
+                    event_start,
                     event.get('location') or ''
                 )
                 if event_key in seen_events:
