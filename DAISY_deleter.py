@@ -108,7 +108,8 @@ for n in full_inputs_dict.keys():
                             try:
                                 enid = build_event_signature(event)
                                 existing_events_nid.append(enid)
-                            except:
+                            except Exception as signature_error:
+                               print(f"failed to build event signature: {signature_error}")
                                print(event)
 
                         for event in sorted(existing_events,key=lambda d: d['summary']):
@@ -131,8 +132,9 @@ for n in full_inputs_dict.keys():
                                 try:
                                     service.events().delete(calendarId=id, eventId=eventid).execute()
                                     print('dai deleted '+event['summary'])
-                                except:
+                                except Exception as delete_error:
                                     print("fail delete "+event['summary'])
+                                    print(delete_error)
 
                                 existing_events_nid.remove(enid) # supposed to only remove first occurence
                                 anydeleted = True
