@@ -83,8 +83,8 @@ for n in sorted_keys:
     events = get_city_events_for_user(city_events, location)
     for event in events:
         try:
-            exists_on_main = check_if_exists(service, event, dai_id,tz)
-            exists_on_ir = check_if_exists(service, event, ir_id,tz)
+            exists_on_main = check_if_exists(service, event, dai_id, tz)
+            exists_on_ir = check_if_exists(service, event, ir_id, tz)
             if exists_on_main or exists_on_ir:
                 print('checked if exists, it does')
             else:

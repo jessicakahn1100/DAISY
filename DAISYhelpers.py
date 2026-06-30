@@ -758,7 +758,7 @@ def build_city_event_pool(full_inputs_dict, user_ids):
             for event in events:
                 event_start = event.get('start', {}).get('dateTime') or event.get('start', {}).get('date') or ''
                 event_key = (
-                    event.get('summary'),
+                    event.get('summary') or '',
                     event_start,
                     event.get('location') or ''
                 )
