@@ -11,7 +11,6 @@ import traceback
 import os
 # for hunting synonyms when GPTs are being uncooperative
 from nltk.corpus import wordnet
-from time import sleep
 from urllib.parse import urljoin, urlparse
 from collections import Counter
 
@@ -78,6 +77,7 @@ tzerdict = {
     "America/Denver":'-06:00',
     "America/Los_Angeles":'-07:00'
     }
+MAX_EVENT_DURATION_DAYS = 2
 
 
 here = os.getcwd()
@@ -95,11 +95,38 @@ def filter_dicts(d, required_keys):
     filtered_dict = {k: v for k, v in d.items() if required_keys <= v.keys()}
     for e in filtered_dict:
         try:
-            events_all[e]['colorId'] = '2'
-            del events_all[e]['url']
+            filtered_dict[e]['colorId'] = '2'
+            del filtered_dict[e]['url']
         except:
             pass
     return filtered_dict
+
+def _parse_event_boundary(event, boundary_key):
+    boundary = event.get(boundary_key, {})
+    raw_value = boundary.get('dateTime') or boundary.get('date')
+    if not raw_value:
+        return None
+    parsed = parser.isoparse(raw_value)
+    if parsed.tzinfo is not None:
+        parsed = parsed.astimezone(pytz.UTC).replace(tzinfo=None)
+    return parsed
+
+def is_event_duration_allowed(event, max_days=MAX_EVENT_DURATION_DAYS):
+    """
+    Return True when event duration is positive and at most max_days.
+    Events with missing/invalid dates are treated as invalid and filtered out.
+    """
+    try:
+        start = _parse_event_boundary(event, 'start')
+        end = _parse_event_boundary(event, 'end')
+        if not start or not end:
+            return False
+        duration = end - start
+        if duration.total_seconds() <= 0:
+            return False
+        return duration <= timedelta(days=max_days)
+    except Exception:
+        return False
 
 def ensure_minutes(time_str):
     # Add minutes if they are missing
@@ -682,12 +709,14 @@ def get_events(search_term,location,tz):
         print('problem with google '+str(anybody))
 
     # Combine the events from all sources into a single list
-    all_events = meetup_events | eventbrite_events | meetup_events | google_events | any_events
+    all_events = meetup_events | eventbrite_events | google_events | any_events
 
     filtered_events = []
-    for event_tag in all_events.keys():
-        event = all_events[event_tag]
-        filtered_events.append(event)
+    for event in all_events.values():
+        if is_event_duration_allowed(event):
+            filtered_events.append(event)
+        else:
+            print(f"skipped long/invalid event: {event.get('summary', 'unknown')}")
         #print(event)
         #print(' ')
         #print(' ')
@@ -725,83 +754,6 @@ def check_if_exists(service, event, id, tz): # true if already exists on calenda
         print(' '*50)
         return False
     return False
-
-def ask_anyone(headers,statement,who):
-    if who == "cohere":
-        print("avoiding cohere")
-    else:
-        url = "https://gpts4u.p.rapidapi.com/"+who
-        payload = [
-        	{
-        		"role": "user",
-        		"content": statement
-        	}
-        ]
-        querystring = {"role": "user","content": statement}
-        try:
-            response = requests.post(url, json=payload, headers=headers, params=querystring)
-            if response.status_code == 200:
-                return response.json()
-            else:
-                response = requests.post(url, json=payload, headers=headers)
-                return response.json()
-        except:
-            response = requests.post(url, json=payload, headers=headers)
-            return response.json()
-
-def ask_GPT(term, event, avoid_terms): # true if GPT likes it, returns false otherwise
-    headers = {
-    	"content-type": "application/json",
-    	"X-RapidAPI-Key": "d763cd0cd9msh31d76766c432afap107663jsn2dd139de41ef", #"c2a93f070fmsh5b11f9c2c1be429p1c5757jsnba8a8525f3d9",
-    	"X-RapidAPI-Host": "gpts4u.p.rapidapi.com"
-    }
-    summary = event['summary']
-    description = event['description']
-    for who in ["llama2","geekGPT","bingChat"]:
-        try:
-            statement = "is the event '"+summary+"' with the description '"+description+"' related to "+term+"? answer only 'yes' or 'no'"
-            gptresponse = ask_anyone(headers,statement,who)
-            print(statement)
-            print(gptresponse)
-            if  "YES" in gptresponse.upper():
-                r1 = True
-            elif "NO" in gptresponse.upper():
-                return False
-            if avoid_terms:
-                print("passed check for search term, now checking for avoid terms.")
-                for avoidterm in avoid_terms:
-                    statement2 = "is an event named '"+summary+"' with the description '"+description+"' "+avoidterm+"? answer only 'yes' or 'no'"
-                    gptresponse2 = ask_anyone(headers,statement2,who)
-                    print(statement2)
-                    print(gptresponse2)
-                    if  "YES" in gptresponse2.upper():
-                        return False
-                    else:
-                        pass
-            return r1
-        except Exception as e:
-            print(who+" didn't work.")
-            print(e)
-    print('~'*50)
-    print('something went wrong when asking GPT')
-    print(statement)
-    #print(gptresponse)
-    print('~'*50)
-    return 'purposely throw an error'
-
-def addToCal(service, event, dai_id, ir_id):
-    sleep(1.5)
-    if check_if_exists(service, event, dai_id):
-        return False
-    elif check_if_exists(service, event, ir_id):
-        return False
-    else:
-        try:
-            service.events().insert(calendarId=ir_id, body=event).execute()
-            return True
-        except:
-            print(traceback.format_exc())
-            return False
 
 def get_synonyms(word):
     synonyms = []

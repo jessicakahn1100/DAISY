@@ -10,7 +10,6 @@ import traceback
 from DAISYhelpers import get_events
 #from DAISYhelpers import format_event
 from DAISYhelpers import check_if_exists
-#from DAISYhelpers import ask_GPT
 from DAISYhelpers import flag_best
 from DAISYhelpers import check_relevance
 
@@ -90,7 +89,9 @@ if len(w) > 0:
             print(events)
             for event in events:
                 try:
-                    if check_if_exists(service, event, dai_id,tz) or check_if_exists(service, event, ir_id,tz):
+                    exists_on_main = check_if_exists(service, event, dai_id,tz)
+                    exists_on_ir = check_if_exists(service, event, ir_id,tz)
+                    if exists_on_main or exists_on_ir:
                         continue
                     print('checked if exists')
                     #event = format_event(event, tz)

@@ -4,6 +4,8 @@ import pickle
 import time
 from datetime import datetime
 from datetime import timedelta
+from datetime import timezone
+from dateutil import parser
 
 here = os.getcwd()
 client_secret_path = here+r'\client_secret.json'
@@ -18,6 +20,28 @@ except Exception as a:
 
 with open('inpsdict.json', "r") as json_file:
     full_inputs_dict = json.load(json_file)
+
+MAX_EVENT_DURATION_DAYS = 2
+
+def _parse_event_boundary(event, boundary_key):
+    boundary = event.get(boundary_key, {})
+    raw_value = boundary.get('dateTime') or boundary.get('date')
+    if not raw_value:
+        return None
+    parsed = parser.isoparse(raw_value)
+    if parsed.tzinfo is not None:
+        parsed = parsed.astimezone(timezone.utc).replace(tzinfo=None)
+    return parsed
+
+def exceeds_max_duration(event, max_days=MAX_EVENT_DURATION_DAYS):
+    try:
+        start = _parse_event_boundary(event, 'start')
+        end = _parse_event_boundary(event, 'end')
+        if not start or not end:
+            return False
+        return (end - start) > timedelta(days=max_days)
+    except Exception:
+        return False
 
 #for n in ['04']:
 for n in full_inputs_dict.keys():
@@ -99,7 +123,7 @@ for n in full_inputs_dict.keys():
                                 }
 
 
-                            if abs(((datetime.fromisoformat(event['end']['dateTime'])) - datetime.fromisoformat(event['start']['dateTime'])).days) > 10:
+                            if exceeds_max_duration(event):
                                 service.events().delete(calendarId=id, eventId=eventid).execute()
 
                             #print("enid summary "+enid['summary'])
