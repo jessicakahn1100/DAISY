@@ -729,6 +729,7 @@ def _search_term_key(search_term):
     return str(search_term).strip().lower()
 
 def build_city_event_pool(full_inputs_dict, user_ids):
+    """Build one deduplicated event list per city from users' unique search terms."""
     city_searches = {}
     for user_id in user_ids:
         inputs_dict = full_inputs_dict[user_id]
@@ -744,7 +745,9 @@ def build_city_event_pool(full_inputs_dict, user_ids):
             cleaned_term = str(search_term).strip()
             if not cleaned_term:
                 continue
-            city_searches[city_key]['terms'].setdefault(_search_term_key(cleaned_term), cleaned_term)
+            search_term_key = _search_term_key(cleaned_term)
+            if search_term_key not in city_searches[city_key]['terms']:
+                city_searches[city_key]['terms'][search_term_key] = cleaned_term
 
     city_events = {}
     for city_key, city_config in city_searches.items():
@@ -755,8 +758,8 @@ def build_city_event_pool(full_inputs_dict, user_ids):
             for event in events:
                 event_key = (
                     event.get('summary'),
-                    str(event.get('start', {}).get('dateTime')),
-                    str(event.get('location'))
+                    event.get('start', {}).get('dateTime') or '',
+                    event.get('location') or ''
                 )
                 if event_key in seen_events:
                     continue
@@ -767,6 +770,7 @@ def build_city_event_pool(full_inputs_dict, user_ids):
     return city_events
 
 def get_city_events_for_user(city_events, location):
+    """Return the pooled events already scraped for the user's city."""
     return city_events.get(_location_key(location), [])
 
 def check_if_exists(service, event, id, tz): # true if already exists on calendar, false otherwise
