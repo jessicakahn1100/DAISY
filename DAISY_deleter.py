@@ -40,7 +40,8 @@ def exceeds_max_duration(event, max_days=MAX_EVENT_DURATION_DAYS):
         if not start or not end:
             return False
         return (end - start) > timedelta(days=max_days)
-    except Exception:
+    except Exception as parse_error:
+        print(f"failed to evaluate event duration for {event.get('summary', 'unknown')}: {parse_error}")
         return False
 
 #for n in ['04']:

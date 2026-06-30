@@ -1,7 +1,7 @@
 import json
 import re
 import pytz
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta, date, timezone
 from datetime import time as tii
 from dateutil import parser
 import requests
@@ -77,6 +77,7 @@ tzerdict = {
     "America/Denver":'-06:00',
     "America/Los_Angeles":'-07:00'
     }
+# Business rule: keep events of 2 days or less, discard longer ones.
 MAX_EVENT_DURATION_DAYS = 2
 
 
@@ -94,11 +95,8 @@ def filter_dicts(d, required_keys):
     """
     filtered_dict = {k: v for k, v in d.items() if required_keys <= v.keys()}
     for e in filtered_dict:
-        try:
-            filtered_dict[e]['colorId'] = '2'
-            del filtered_dict[e]['url']
-        except:
-            pass
+        filtered_dict[e]['colorId'] = '2'
+        filtered_dict[e].pop('url', None)
     return filtered_dict
 
 def _parse_event_boundary(event, boundary_key):
@@ -108,7 +106,7 @@ def _parse_event_boundary(event, boundary_key):
         return None
     parsed = parser.isoparse(raw_value)
     if parsed.tzinfo is not None:
-        parsed = parsed.astimezone(pytz.UTC).replace(tzinfo=None)
+        parsed = parsed.astimezone(timezone.utc).replace(tzinfo=None)
     return parsed
 
 def is_event_duration_allowed(event, max_days=MAX_EVENT_DURATION_DAYS):
@@ -125,7 +123,8 @@ def is_event_duration_allowed(event, max_days=MAX_EVENT_DURATION_DAYS):
         if duration.total_seconds() <= 0:
             return False
         return duration <= timedelta(days=max_days)
-    except Exception:
+    except Exception as parse_error:
+        print(f"invalid event duration data for {event.get('summary', 'unknown')}: {parse_error}")
         return False
 
 def ensure_minutes(time_str):
