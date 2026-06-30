@@ -722,6 +722,53 @@ def get_events(search_term,location,tz):
 
     return filtered_events
 
+def _location_key(location):
+    return tuple(str(part).strip().lower() for part in location)
+
+def _search_term_key(search_term):
+    return str(search_term).strip().lower()
+
+def build_city_event_pool(full_inputs_dict, user_ids):
+    city_searches = {}
+    for user_id in user_ids:
+        inputs_dict = full_inputs_dict[user_id]
+        location = inputs_dict['location']
+        city_key = _location_key(location)
+        if city_key not in city_searches:
+            city_searches[city_key] = {
+                'location': list(location),
+                'tz': inputs_dict['tz'],
+                'terms': {}
+            }
+        for search_term in inputs_dict.get('search_terms', []):
+            cleaned_term = str(search_term).strip()
+            if not cleaned_term:
+                continue
+            city_searches[city_key]['terms'].setdefault(_search_term_key(cleaned_term), cleaned_term)
+
+    city_events = {}
+    for city_key, city_config in city_searches.items():
+        pooled_events = []
+        seen_events = set()
+        for search_term in city_config['terms'].values():
+            events = get_events(search_term, list(city_config['location']), city_config['tz'])
+            for event in events:
+                event_key = (
+                    event.get('summary'),
+                    str(event.get('start', {}).get('dateTime')),
+                    str(event.get('location'))
+                )
+                if event_key in seen_events:
+                    continue
+                seen_events.add(event_key)
+                pooled_events.append(event)
+        city_events[city_key] = pooled_events
+
+    return city_events
+
+def get_city_events_for_user(city_events, location):
+    return city_events.get(_location_key(location), [])
+
 def check_if_exists(service, event, id, tz): # true if already exists on calendar, false otherwise
     try:
         timemin = event['start']['dateTime'].replace('z', '')

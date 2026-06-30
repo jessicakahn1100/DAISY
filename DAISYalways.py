@@ -8,11 +8,11 @@ import time
 import traceback
 
 from googleapiclient.errors import HttpError
-from DAISYhelpers import get_events
-#from DAISYhelpers import format_event
 from DAISYhelpers import check_if_exists
 from DAISYhelpers import flag_best
 from DAISYhelpers import check_relevance
+from DAISYhelpers import build_city_event_pool
+from DAISYhelpers import get_city_events_for_user
 
 with open('inpsdict.json', "r") as json_file:
     full_inputs_dict = json.load(json_file)
@@ -53,6 +53,8 @@ if len(w) > 0:
         outs.append('got here by failing to load service definition')
         outs.append(a)
 
+    city_events = build_city_event_pool(full_inputs_dict, w)
+
     for n in w:
         full_inputs_dict[n]['timestamp'] = datetime.now().isoformat()
         with open('inpsdict.json', 'w') as json_file:
@@ -82,65 +84,61 @@ if len(w) > 0:
                 ir_id = cal['id']
 
         # Get events, add them to calendar
-        checked_urls = []
-
-            # get events, add to calendars
-        for term in search_terms:
-            events = get_events(term, location,tz)
-            print(events)
-            for event in events:
+        events = get_city_events_for_user(city_events, location)
+        print(events)
+        for event in events:
+            try:
+                exists_on_main = check_if_exists(service, event, dai_id,tz)
+                exists_on_ir = check_if_exists(service, event, ir_id,tz)
+                if exists_on_main or exists_on_ir:
+                    continue
+                print('checked if exists')
+                #event = format_event(event, tz)
+                #print('formatted')
+                [relevant,show] = check_relevance(event, search_terms, avoid_terms,block_terms)
+                print('relevanced')
+                # add to calendar or irrelevant event list
+                if not show:
+                    print(f'not showing {event["summary"]}')
+                    continue
+                if relevant:
+                    useid = dai_id
+                else:
+                    useid = ir_id
                 try:
-                    exists_on_main = check_if_exists(service, event, dai_id,tz)
-                    exists_on_ir = check_if_exists(service, event, ir_id,tz)
-                    if exists_on_main or exists_on_ir:
+                    service.events().insert(calendarId=useid, body=event).execute()
+                except HttpError as insert_error: # duplicate can occur between check and insert
+                    if insert_error.resp.status == 409:
                         continue
-                    print('checked if exists')
-                    #event = format_event(event, tz)
-                    #print('formatted')
-                    [relevant,show] = check_relevance(event, search_terms, avoid_terms,block_terms)
-                    print('relevanced')
-                    # add to calendar or irrelevant event list
-                    if not show:
-                        print(f'not showing {event["summary"]}')
-                        continue
+                    print("something went wrong adding "+event['summary']+" to calendar")
+                    eventstr = str(event['summary'])+"\n"+str(event['description'])
                     if relevant:
-                        useid = dai_id
+                        not_added.append(eventstr)
                     else:
-                        useid = ir_id
-                    try:
-                        service.events().insert(calendarId=useid, body=event).execute()
-                    except HttpError as insert_error: # duplicate can occur between check and insert
-                        if insert_error.resp.status == 409:
-                            continue
-                        print("something went wrong adding "+event['summary']+" to calendar")
-                        eventstr = str(event['summary'])+"\n"+str(event['description'])
-                        if relevant:
-                            not_added.append(eventstr)
-                        else:
-                            unimportant_not_added.append(eventstr)
-                    except Exception as insert_error: # something went wrong adding to calendar
-                        if 'already exists' in str(insert_error).lower():
-                            continue
-                        print("something went wrong adding "+event['summary']+" to calendar")
-                        eventstr = str(event['summary'])+"\n"+str(event['description'])
-                        if relevant:
-                            not_added.append(eventstr)
-                        else:
-                            unimportant_not_added.append(eventstr)
+                        unimportant_not_added.append(eventstr)
+                except Exception as insert_error: # something went wrong adding to calendar
+                    if 'already exists' in str(insert_error).lower():
+                        continue
+                    print("something went wrong adding "+event['summary']+" to calendar")
+                    eventstr = str(event['summary'])+"\n"+str(event['description'])
+                    if relevant:
+                        not_added.append(eventstr)
+                    else:
+                        unimportant_not_added.append(eventstr)
 
-                except Exception as exefor:
-                    print("-"*50)
-                    print("-"*50)
-                    print("-"*50)
-                    try:
-                        print("problem formatting \n\n"+str(event)+"\n\n or something, hard to be sure.")
-                        print(exefor)
-                        print(traceback.format_exc())
-                    except:
-                        pass
-                    print("-"*50)
-                    print("-"*50)
-                    print("-"*50)
+            except Exception as exefor:
+                print("-"*50)
+                print("-"*50)
+                print("-"*50)
+                try:
+                    print("problem formatting \n\n"+str(event)+"\n\n or something, hard to be sure.")
+                    print(exefor)
+                    print(traceback.format_exc())
+                except:
+                    pass
+                print("-"*50)
+                print("-"*50)
+                print("-"*50)
 
         # add notes to calendar as 24-h events
         base_event_dict = {
