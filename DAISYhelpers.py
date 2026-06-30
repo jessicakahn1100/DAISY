@@ -760,7 +760,8 @@ def build_city_event_pool(full_inputs_dict, user_ids):
                 event_key = (
                     event.get('summary') or '',
                     event_start,
-                    event.get('location') or ''
+                    event.get('location') or '',
+                    event.get('description') or ''
                 )
                 if event_key in seen_events:
                     continue

@@ -87,6 +87,12 @@ if len(w) > 0:
         events = get_city_events_for_user(city_events, location)
         for event in events:
             try:
+                [relevant,show] = check_relevance(event, search_terms, avoid_terms,block_terms)
+                print('relevanced')
+                # add to calendar or irrelevant event list
+                if not show:
+                    print(f'not showing {event["summary"]}')
+                    continue
                 exists_on_main = check_if_exists(service, event, dai_id, tz)
                 exists_on_ir = check_if_exists(service, event, ir_id, tz)
                 if exists_on_main or exists_on_ir:
@@ -94,12 +100,6 @@ if len(w) > 0:
                 print('checked if exists')
                 #event = format_event(event, tz)
                 #print('formatted')
-                [relevant,show] = check_relevance(event, search_terms, avoid_terms,block_terms)
-                print('relevanced')
-                # add to calendar or irrelevant event list
-                if not show:
-                    print(f'not showing {event["summary"]}')
-                    continue
                 if relevant:
                     useid = dai_id
                 else:
