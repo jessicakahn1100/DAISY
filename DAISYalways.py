@@ -7,10 +7,10 @@ import pickle
 import time
 import traceback
 
+from googleapiclient.errors import HttpError
 from DAISYhelpers import get_events
 #from DAISYhelpers import format_event
 from DAISYhelpers import check_if_exists
-#from DAISYhelpers import ask_GPT
 from DAISYhelpers import flag_best
 from DAISYhelpers import check_relevance
 
@@ -90,7 +90,9 @@ if len(w) > 0:
             print(events)
             for event in events:
                 try:
-                    if check_if_exists(service, event, dai_id,tz) or check_if_exists(service, event, ir_id,tz):
+                    exists_on_main = check_if_exists(service, event, dai_id,tz)
+                    exists_on_ir = check_if_exists(service, event, ir_id,tz)
+                    if exists_on_main or exists_on_ir:
                         continue
                     print('checked if exists')
                     #event = format_event(event, tz)
@@ -107,7 +109,18 @@ if len(w) > 0:
                         useid = ir_id
                     try:
                         service.events().insert(calendarId=useid, body=event).execute()
-                    except: # something went wrong adding to calendar
+                    except HttpError as insert_error: # duplicate can occur between check and insert
+                        if insert_error.resp.status == 409:
+                            continue
+                        print("something went wrong adding "+event['summary']+" to calendar")
+                        eventstr = str(event['summary'])+"\n"+str(event['description'])
+                        if relevant:
+                            not_added.append(eventstr)
+                        else:
+                            unimportant_not_added.append(eventstr)
+                    except Exception as insert_error: # something went wrong adding to calendar
+                        if 'already exists' in str(insert_error).lower():
+                            continue
                         print("something went wrong adding "+event['summary']+" to calendar")
                         eventstr = str(event['summary'])+"\n"+str(event['description'])
                         if relevant:
